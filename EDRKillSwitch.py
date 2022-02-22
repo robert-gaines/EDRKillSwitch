@@ -23,6 +23,10 @@ except Exception as e:
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+'''
+Class for the primary graphical user interface
+'''
+
 class Window(QWidget):
     def __init__(self):
         QWidget.__init__(self)
@@ -31,81 +35,86 @@ class Window(QWidget):
         self.setWindowTitle('EDR Killswitch')
         self.setGeometry(800,100,500,800)
         #
-        self.api_key_label   = QLabel("API Key")
-        self.api_key         = QLineEdit()
-        self.api_key.setPlaceholderText("<API key goes here>")
-        self.tenant_label    = QLabel("Tenant FQDN/IP")
-        self.tenant_addr     = QLineEdit()
-        self.tenant_addr.setPlaceholderText("<Supervisor FQDN or IP goes here>")
-        self.set_params_btn  = QPushButton("Set Parameters")
-        self.clr_params_btn  = QPushButton("Clear Parameters")
-        self.org_box_label   = QLabel("Select the organization")
-        self.org_combo_box   = QComboBox()
-        self.ctr_box_label   = QLabel("Select the collector")
-        self.ctr_combo_box   = QComboBox()
-        self.isolate_ctr_btn = QPushButton("Isolate Single Host")
-        self.isolate_org_btn = QPushButton("Isolate Entire Organization")
-        self.restore_ctr_btn = QPushButton("Restore Single Host")
-        self.restore_org_btn = QPushButton("Restore Entire Organization")
-        self.output_window   = QPlainTextEdit("")
-        self.isolate_ctr_btn.setStyleSheet('background-color : red')
-        self.isolate_org_btn.setStyleSheet('background-color : red')
-        self.restore_ctr_btn.setStyleSheet('background-color : blue')
-        self.restore_org_btn.setStyleSheet('background-color : blue')
-        self.output_window.resize(200,400)
+        self.api_key_label   = QLabel("API Key")                                    # Label:       API Key text input field
+        self.api_key         = QLineEdit()                                          # Input:       API Key input field / text box
+        self.api_key.setPlaceholderText("<API key goes here>")                      # Placeholder: Text for the API Key input field
+        self.tenant_label    = QLabel("Tenant FQDN/IP")                             # Label:       Supervisor/Manager Input Field
+        self.tenant_addr     = QLineEdit()                                          # Input:       IP/FQDN Field
+        self.tenant_addr.setPlaceholderText("<Supervisor FQDN or IP goes here>")    # Placeholder: IP/FQDN placeholder
+        self.set_params_btn  = QPushButton("Set Parameters")                        # Button:      Embed API call parameters
+        self.clr_params_btn  = QPushButton("Clear Parameters")                      # Button:      Reset the parameter input fields
+        self.org_box_label   = QLabel("Select the organization")                    # Label:       Organization combo box label
+        self.org_combo_box   = QComboBox()                                          # ComboBox:    Organization combo box
+        self.ctr_box_label   = QLabel("Select the collector")                       # Label:       Label for the collector combination 
+        self.ctr_combo_box   = QComboBox()                                          # ComboBox:    The collector combination box
+        self.isolate_ctr_btn = QPushButton("Isolate Single Host")                   # Button:      Isolate a single collector
+        self.isolate_org_btn = QPushButton("Isolate Entire Organization")           # Button:      Isolate en entire organization
+        self.restore_ctr_btn = QPushButton("Restore Single Host")                   # Button:      Restore a single collector
+        self.restore_org_btn = QPushButton("Restore Entire Organization")           # Button:      Restore an entire organization
+        self.output_window   = QPlainTextEdit("")                                   # Button:      Isolate an entire organization
+        self.isolate_ctr_btn.setStyleSheet('background-color : red')                # Style:       Red for danger - Single Collector Isolation Button
+        self.isolate_org_btn.setStyleSheet('background-color : red')                # Style:       Red for danger - Entire Organization Isolation Button
+        self.restore_ctr_btn.setStyleSheet('background-color : blue')               # Style:       Blue for generally accepted positive status indicator - Restore Single Collector (Unisolate) 
+        self.restore_org_btn.setStyleSheet('background-color : blue')               # Style:       Blue for generally accepted positive status indicator - Restore the entire organization (Unisolate)
+        self.output_window.resize(200,400)                                          # TextField:   Substitute for STDOUT
         #
         '''
         Button Actions
         '''
         #
-        self.set_params_btn.clicked.connect(self.SetParams)
-        self.clr_params_btn.clicked.connect(self.ClearParams)
-        self.org_combo_box.currentIndexChanged.connect(self.RegisterOrganization)
-        self.isolate_ctr_btn.clicked.connect(self.IsolateHost)
-        self.restore_ctr_btn.clicked.connect(self.RestoreHost)
-        self.isolate_org_btn.clicked.connect(self.IsolateOrganization)
-        self.restore_org_btn.clicked.connect(self.RestoreOrganization)
+        self.set_params_btn.clicked.connect(self.SetParams)                         # Button Click Event Handler -> Set the API parameters & test validity 
+        self.clr_params_btn.clicked.connect(self.ClearParams)                       # Button Click Event Handler -> Clear the API parameter fields
+        self.org_combo_box.currentIndexChanged.connect(self.RegisterOrganization)   # Combo Box Event Handler    -> Set the organization that is to be managed 
+        self.isolate_ctr_btn.clicked.connect(self.IsolateHost)                      # Button Click Event Handler -> Isolate a single host - calls function IsolateHost()
+        self.restore_ctr_btn.clicked.connect(self.RestoreHost)                      # Button Click Event Handler -> Restore a single host - calls function RestoreHost()
+        self.isolate_org_btn.clicked.connect(self.IsolateOrganization)              # Button Click Event Handler -> Isolate all collectors in an organization - IsolateOrganization()
+        self.restore_org_btn.clicked.connect(self.RestoreOrganization)              # Button Click Event Handler -> Restore all isolated collectors in an organization - RestoreOrganization()
         #
         '''
         Form layout configuration
         '''
         #
-        main_form_layout                 = QFormLayout()
-        main_form_layout.setVerticalSpacing(10)
-        self.horizontal_param_button_box = QHBoxLayout()
-        self.vertical_org_menu_box       = QVBoxLayout()
-        self.vertical_collector_box      = QVBoxLayout()
-        self.isolate_btn_box             = QHBoxLayout()
-        self.restore_btn_box             = QHBoxLayout()
-        self.vertical_feedback_box       = QVBoxLayout()
+        main_form_layout                 = QFormLayout()                            # Layout: This is the main form layout
+        main_form_layout.setVerticalSpacing(10)                                     # Layout: Set the form layout vertical spacing to 10 mystery units
+        self.horizontal_param_button_box = QHBoxLayout()                            # Layout: Horizontal - Contains the parameter fields
+        self.vertical_org_menu_box       = QVBoxLayout()                            # Layout: Vertical   - Contains the organization combination box
+        self.vertical_collector_box      = QVBoxLayout()                            # Layout: Vertical   - Contains the collector combination box
+        self.isolate_btn_box             = QHBoxLayout()                            # Layout: Horizontal - Contains the isolation buttons
+        self.restore_btn_box             = QHBoxLayout()                            # Layout: Horizontal - Contains the restoration buttons
+        self.vertical_feedback_box       = QVBoxLayout()                            # Layout: Vertical   - Contains the vertical text field for output
         #
-        self.horizontal_param_button_box.addWidget(self.set_params_btn)
-        self.horizontal_param_button_box.addWidget(self.clr_params_btn)
+        self.horizontal_param_button_box.addWidget(self.set_params_btn)             # Widget: Instantiate the set parameters button 
+        self.horizontal_param_button_box.addWidget(self.clr_params_btn)             # Widget: Instantiate the clear parameters button
         #
-        self.vertical_org_menu_box.addWidget(self.org_box_label)
-        self.vertical_org_menu_box.addWidget(self.org_combo_box)
+        self.vertical_org_menu_box.addWidget(self.org_box_label)                    # Label:  Organization combination box label
+        self.vertical_org_menu_box.addWidget(self.org_combo_box)                    # Widget: Instantiate the organization combination box widget
         #
-        self.vertical_collector_box.addWidget(self.ctr_box_label)
-        self.vertical_collector_box.addWidget(self.ctr_combo_box)
+        self.vertical_collector_box.addWidget(self.ctr_box_label)                   # Label:  Collector combination box label
+        self.vertical_collector_box.addWidget(self.ctr_combo_box)                   # Widget: Collector combination box widget
         #
-        self.isolate_btn_box.addWidget(self.isolate_ctr_btn)
-        self.isolate_btn_box.addWidget(self.isolate_org_btn)
-        self.restore_btn_box.addWidget(self.restore_ctr_btn)
-        self.restore_btn_box.addWidget(self.restore_org_btn)
+        self.isolate_btn_box.addWidget(self.isolate_ctr_btn)                        # Widget: Instantiate the single collector isolation button
+        self.isolate_btn_box.addWidget(self.isolate_org_btn)                        # Widget: Instantiate the organization isolation button
+        self.restore_btn_box.addWidget(self.restore_ctr_btn)                        # Widget: Instantiate the single collector restoration button
+        self.restore_btn_box.addWidget(self.restore_org_btn)                        # Widget: Instantiate the entire organization restoration button
         #
-        self.vertical_feedback_box.addWidget(self.output_window)
+        self.vertical_feedback_box.addWidget(self.output_window)                    # Widget: Instantiate the vertical text box field
         #
-        main_form_layout.addRow(self.tenant_label,self.tenant_addr)
-        main_form_layout.addRow(self.api_key_label,self.api_key)
-        main_form_layout.addRow(self.horizontal_param_button_box)
-        main_form_layout.addRow(self.vertical_org_menu_box)
-        main_form_layout.addRow(self.vertical_collector_box)
-        main_form_layout.addRow(self.isolate_btn_box)
-        main_form_layout.addRow(self.restore_btn_box)
-        main_form_layout.addRow(self.vertical_feedback_box)
+        main_form_layout.addRow(self.tenant_label,self.tenant_addr)                 # Layout: Add the label for the manager input field to the main form
+        main_form_layout.addRow(self.api_key_label,self.api_key)                    # Layout: Add the label for the API input field to the main form
+        main_form_layout.addRow(self.horizontal_param_button_box)                   # Layout: Integrate the set parameter button and supporting subordinate layout into the main form
+        main_form_layout.addRow(self.vertical_org_menu_box)                         # Layout: Add the organization combination box and supporting subordinate layout into the main form
+        main_form_layout.addRow(self.vertical_collector_box)                        # Layout: Add the collector selection combination box and the supporting subordinate layout to the main form
+        main_form_layout.addRow(self.isolate_btn_box)                               # Layout: Add the isolation buttons and their subordinate layout to the main form
+        main_form_layout.addRow(self.restore_btn_box)                               # Layout: Add the restoration buttons and their subordinate layout to the main form
+        main_form_layout.addRow(self.vertical_feedback_box)                         # Layout: Add the vertical text field layout to the main form
         #
-        self.setLayout(main_form_layout)
+        self.setLayout(main_form_layout)                                            # Layout: Establish the main form within the main window
 
+    '''
+    Input:      str() -> Manager IP Address/FQDN ; str() -> API Key 
+    Processing: HTTP Get request to the management endpoint to establish credential validity
+    Output:     JSON encoded list of organizations within the EDR Tenant
+    '''
     def TestParams(self):
         timestamp = time.ctime()
         try:
@@ -121,6 +130,12 @@ class Window(QWidget):
         except Exception as e:
             return e
 
+    '''
+    Input:      str() -> Manager IP Address/FQDN ; str() -> API Key 
+    Processing: HTTP Get request to test credentials via TestParams() ;
+                Parse JSON encoded organizations into a graphical combination box (drop down) 
+    Output:     Fully populated combiantion box / drop down menu with EDR tenant organization names
+    '''
     @pyqtSlot()
     def SetParams(self):
         timestamp = time.ctime()
@@ -151,6 +166,15 @@ class Window(QWidget):
             self.tenant_addr.setText("")
             self.api_key.setText("")
 
+    '''
+    Input:      str() -> Manager IP Address/FQDN ; str() -> API Key ; str() -> Current Organization
+    Processing: Register drop down menu change event
+                Transmit HTTP Get request to the API endpoint with the organization as the query term
+                Retrieve a list of collectors for the organization
+                Populate a combination box with all of the organization's collectors
+                Populate a list with all of the organization's collectors
+    Output:     Fully populate combination box and data structure with collector identities
+    '''
     def RegisterOrganization(self):
         timestamp = time.ctime()
         self.current_organization = self.org_combo_box.currentText()
@@ -182,6 +206,11 @@ class Window(QWidget):
         except Exception as e:
             self.output_window.insertPlainText("[{0}] Error populating collector list: {1}\n".format(timestamp,e))
 
+    '''
+    Input:      None
+    Processing: Purge Manager Address and API Key input fields
+    Output:     Vacant text input fields
+    '''
     @pyqtSlot()
     def ClearParams(self):
         timestamp = time.ctime()
@@ -189,6 +218,12 @@ class Window(QWidget):
         self.api_key.setText("")
         self.output_window.insertPlainText("[{0}] Cleared parameters\n".format(timestamp))
 
+    '''
+    Input:      str() -> Manager IP Address/FQDN ; str() -> API Key ; str() -> collector
+    Processing: Extract string value from the collector drop down menu
+                Send HTTP PUT request to the API endpoint instructing the manager to isolate the collector/host
+    Output:     Return text based indication of success or failure based on the response code
+    '''
     def IsolateHost(self):
         timestamp      = time.ctime()
         ctr_entry      = self.ctr_combo_box.currentText()
@@ -211,6 +246,12 @@ class Window(QWidget):
         except Exception as e:
             self.output_window.insertPlainText("[{0}] Error -> Failed to isolate: {1} : {2}\n".format(timestamp,collector_name,e))
 
+    '''
+    Input:      str() -> Manager IP Address/FQDN ; str() -> API Key ; str() -> collector
+    Processing: Extract string value from the collector drop down menu
+                Send HTTP PUT request to the API endpoint instructing the manager to unisolate the collector/host
+    Output:     Return text based indication of success or failure based on the response code
+    '''
     def RestoreHost(self):
         timestamp      = time.ctime()
         ctr_entry      = self.ctr_combo_box.currentText()
@@ -233,6 +274,12 @@ class Window(QWidget):
         except Exception as e:
             self.output_window.insertPlainText("[{0}] Error -> Failed to unisolate: {1} : {2}\n".format(timestamp,collector_name,e))
 
+    '''
+    Input:      str() -> Manager IP Address/FQDN ; str() -> API Key ; str() -> Current Organization
+    Processing: Extract string value from the collector drop down menu for the currently selected organization
+                Send HTTP PUT request to the API endpoint instructing the manager to isolate each collector or host in the organization
+    Output:     Return text based indication of success or failure based on the response code, for each host
+    '''
     def IsolateOrganization(self):
         timestamp = time.ctime()
         self.output_window.insertPlainText("[{0}] Preparing to isolate collectors within: {1}\n".format(timestamp,self.current_organization))
@@ -259,6 +306,12 @@ class Window(QWidget):
         else:
             self.output_window.insertPlainText("[{0}] Declined to isolate the organization: {1}\n".format(timestamp,self.current_organization))
 
+    '''
+    Input:      str() -> Manager IP Address/FQDN ; str() -> API Key ; str() -> Current Organization
+    Processing: Extract string value from the collector drop down menu for the currently selected organization
+                Send HTTP PUT request to the API endpoint instructing the manager to unisolate each collector or host in the organization
+    Output:     Return text based indication of success or failure based on the response code, for each host
+    '''
     def RestoreOrganization(self):
         timestamp = time.ctime()
         self.output_window.insertPlainText("[{0}] Preparing to restore collectors within: {1}\n".format(timestamp,self.current_organization))
