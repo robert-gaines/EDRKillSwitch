@@ -11,7 +11,7 @@ Instruction for use:
 2) Encode the username and password in Base64 and transmit them to the manager via Curl (See Fortinet documentation for exact instructions)
 3) If the request is successful, retrieve the API Key from the response headers
 4) Open the application EDRKillSwitch.exe or EDRKillSwitch.py
-5) Embed the managaer IP or FQDN in the appropriate field
+5) Embed the manager IP or FQDN in the appropriate field
 6) Embed the API key in the appropriate field
 7) Click 'Set Parameters'
 8) Acknowledge the confirmation dialogue
