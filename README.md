@@ -5,7 +5,7 @@ This script and its GUI were designed to allow an organization to rapidly isolat
 
 Disclaimer: Use with caution. Reckless use of this application in a production environment may result in a high volume of inbound tickets and an abrupt career transition to panhandling and vagrancy
 
-Instruction for use:
+Instructions for use:
 
 1) Create an administrative API user in the manager system
 2) Encode the username and password in Base64 and transmit them to the manager via Curl (See Fortinet documentation for exact instructions)
@@ -17,3 +17,4 @@ Instruction for use:
 8) Acknowledge the confirmation dialogue
 9) Pending successful verification of the parameters, isolate and restore as required
 
+![image](https://user-images.githubusercontent.com/24815431/229586747-b4823625-7046-48e3-8d06-b508a7c9ef78.png)
